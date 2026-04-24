@@ -96,7 +96,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         }}
       >
         <ContentCut sx={{ color: '#C29B0B' }} />
-        <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: -0.5 }}>Royal Tailors</Typography>
+        <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: -0.5, color: 'white' }}>Al-Riaz Tailors</Typography>
       </Toolbar>
       <List sx={{ flexGrow: 1, p: 2 }}>
         {menuItems.map((item, index) => (
