@@ -22,17 +22,23 @@ services:
       retries: 5
       start_period: 20s
 
-  # ── Backend (Express API) ─────────────────────────────────────────────────
-  backend:
+  # ── App (Frontend + Backend combined) ─────────────────────────────────────
+  app:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
-    container_name: tailor-backend
+      args:
+        # Baked into the Next.js bundle at build time.
+        # Browser calls this, so it must be reachable from the end-user's host.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    container_name: tailor-app
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "3000:3000"   # Next.js frontend
+      - "5000:5000"   # Express API
     environment:
       NODE_ENV: production
+      # Backend runtime env
       PORT: 5000
       MYSQL_HOST: mysql
       MYSQL_USER: ${MYSQL_USER}
@@ -46,38 +52,20 @@ services:
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       GOOGLE_REFRESH_TOKEN: ${GOOGLE_REFRESH_TOKEN}
+      # Frontend runtime env
+      HOSTNAME: "0.0.0.0"
     depends_on:
       mysql:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/health"]
-      interval: 15s
-      timeout: 5s
+      # Check both services are alive
+      test: >
+        wget --no-verbose --tries=1 --spider http://localhost:5000/health &&
+        wget --no-verbose --tries=1 --spider http://localhost:3000
+      interval: 20s
+      timeout: 10s
       retries: 3
-      start_period: 10s
-
-  # ── Frontend (Next.js) ────────────────────────────────────────────────────
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
-    container_name: tailor-frontend
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      NODE_ENV: production
-    depends_on:
-      backend:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-      start_period: 15s
+      start_period: 30s
 
 volumes:
   mysql_data:
