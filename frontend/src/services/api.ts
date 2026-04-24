@@ -37,6 +37,14 @@ export const api = {
     const response = await axios.post(`${API_BASE_URL}/auth/login`, credentials);
     return response.data;
   },
+  getMe: async () => {
+    const response = await axios.get(`${API_BASE_URL}/auth/me`);
+    return response.data;
+  },
+  resetCredentials: async (data: Record<string, string>) => {
+    const response = await axios.put(`${API_BASE_URL}/auth/reset`, data);
+    return response.data;
+  },
   // Admin / Backups
   manualBackup: async (force = false) => {
     const response = await axios.post(`${API_BASE_URL}/admin/manual-backup`, { force });

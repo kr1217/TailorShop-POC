@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { TextField, Button, Box, Typography, Paper, CircularProgress, Checkbox, FormControlLabel, Alert } from '@mui/material';
 import { Lock, Person, ContentCut, Straighten } from '@mui/icons-material';
 import { api } from '@/services/api';
@@ -116,9 +117,11 @@ export default function LoginPage() {
                 control={<Checkbox sx={{ color: '#2C3E50', '&.Mui-checked': { color: '#2C3E50' } }} />} 
                 label={<Typography variant="body2">Remember Me</Typography>} 
               />
-              <Typography variant="body2" sx={{ color: '#2C3E50', fontWeight: 600, cursor: 'pointer' }}>
-                Forgot?
-              </Typography>
+              <Link href="/reset-password" style={{ textDecoration: 'none' }}>
+                <Typography variant="body2" sx={{ color: '#2C3E50', fontWeight: 600, cursor: 'pointer', '&:hover': { color: '#C29B0B' } }}>
+                  Forgot?
+                </Typography>
+              </Link>
             </Box>
 
             <Button

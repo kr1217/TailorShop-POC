@@ -3,18 +3,58 @@ const router = express.Router();
 const Customer = require('../models/Customer');
 const sequelize = require('../utils/db');
 const { Op } = require('sequelize');
+const User = require('../models/User');
 
-// ── Auth Endpoint ─────────────────────────────────────────────────────────
+// ── Auth Endpoints ────────────────────────────────────────────────────────
 router.post('/auth/login', async (req, res) => {
-  const { username, password } = req.body;
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne({ where: { username, password } });
 
-  const validUser = process.env.ADMIN_USER || 'admin';
-  const validPass = process.env.ADMIN_PASS || 'admin123';
-
-  if (username === validUser && password === validPass) {
-    return res.json({ success: true, token: 'mock-jwt-token-tailor-poc' });
+    if (user) {
+      return res.json({ 
+        success: true, 
+        token: 'mock-jwt-token-tailor-poc',
+        username: user.username 
+      });
+    }
+    res.status(401).json({ success: false, message: 'Invalid credentials' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
   }
-  res.status(401).json({ success: false, message: 'Invalid credentials' });
+});
+
+router.get('/auth/me', async (req, res) => {
+  try {
+    // In a real app, we'd get the user from the token
+    // For this POC, we'll just return the first user
+    const user = await User.findOne();
+    if (user) {
+      return res.json({ success: true, username: user.username });
+    }
+    res.status(404).json({ success: false, message: 'User not found' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+router.put('/auth/reset', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const user = await User.findOne(); // Update the first user for this POC
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    if (username) user.username = username;
+    if (password) user.password = password;
+    
+    await user.save();
+    res.json({ success: true, message: 'Credentials updated successfully' });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 // ── Stats Endpoint ────────────────────────────────────────────────────────

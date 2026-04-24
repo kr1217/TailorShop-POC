@@ -66,8 +66,19 @@ sequelize.authenticate()
     console.log('Connected to MySQL');
     return sequelize.sync({ alter: true });
   })
-  .then(() => {
+  .then(async () => {
     console.log('Database synced');
+    
+    // Seed default admin user if none exists
+    const User = require('./models/User');
+    const count = await User.count();
+    if (count === 0) {
+      const defaultUser = process.env.ADMIN_USER || 'admin';
+      const defaultPass = process.env.ADMIN_PASS || 'admin123';
+      await User.create({ username: defaultUser, password: defaultPass });
+      console.log('Default admin user created');
+    }
+    
     const server = app.listen(PORT, () => {
       console.log(`Server running on port ${PORT} [${process.env.NODE_ENV || 'development'}]`);
     });

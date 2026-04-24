@@ -88,6 +88,11 @@ export default function DashboardPage() {
     queryFn: api.getAlerts
   });
 
+  const { data: userData } = useQuery({
+    queryKey: ['user-profile'],
+    queryFn: api.getMe
+  });
+
   if (statsLoading || alertsLoading) {
     return (
       <MainLayout>
@@ -107,7 +112,7 @@ export default function DashboardPage() {
             Shop Management <Typography component="span" variant="h4" sx={{ color: '#C29B0B', fontWeight: 400 }}>| Dashboard</Typography>
           </Typography>
           <Typography variant="body1" sx={{ color: '#607D8B' }}>
-            Welcome back, Admin. Here is the status of your workshop today.
+            Welcome back, {userData?.username || 'Admin'}. Here is the status of your workshop today.
           </Typography>
         </Box>
       </Box>

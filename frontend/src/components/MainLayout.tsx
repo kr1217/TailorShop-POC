@@ -29,7 +29,7 @@ import {
   CloudUpload as CloudUploadIcon
 } from '@mui/icons-material';
 
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/services/api';
 import ErrorBoundary from './ErrorBoundary';
 
@@ -50,6 +50,12 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       });
     }
   };
+
+  const { data: userData } = useQuery({
+    queryKey: ['user-profile'],
+    queryFn: api.getMe,
+    enabled: mounted
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -177,7 +183,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Typography variant="body2" sx={{ color: '#607D8B', fontWeight: 600 }}>
-              Assalam-o-Alaikum, <Typography component="span" variant="body2" sx={{ color: '#C29B0B', fontWeight: 800 }}>Admin</Typography>
+              Assalam-o-Alaikum, <Typography component="span" variant="body2" sx={{ color: '#C29B0B', fontWeight: 800 }}>{userData?.username || 'Admin'}</Typography>
             </Typography>
           </Box>
         </Toolbar>
